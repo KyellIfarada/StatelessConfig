@@ -1,0 +1,83 @@
+ubuntu@ubuntu:~$ cd containernet
+ubuntu@ubuntu:~/containernet$ sudo mn --topo=single,4 --controller=remote,port=6633 --controller=remote,port=6655 --switch=ovsk --mac
+[sudo] password for ubuntu: 
+*** Creating network
+*** Adding controller
+*** Adding hosts:
+h1 h2 h3 h4 
+*** Adding switches:
+s1 
+*** Adding links:
+(h1, s1) (h2, s1) (h3, s1) (h4, s1) 
+*** Configuring hosts
+h1 h2 h3 h4 
+*** Starting controller
+c0 c1 
+*** Starting 1 switches
+s1 ...
+*** Starting CLI:
+containernet> h1 ifconfig h1-eth0 192.168.2.10/24
+containernet> h2 ifconfig h2-eth0 192.168.2.20/24
+containernet> h3 ifconfig h3-eth0 192.168.2.30/24
+containernet> h4 ifconfig h4-eth0 192.168.2.40/24
+containernet> xterm h1 h2 h3 h4
+containernet> h1 ping -c 3 h3
+PING 192.168.2.30 (192.168.2.30) 56(84) bytes of data.
+64 bytes from 192.168.2.30: icmp_seq=1 ttl=64 time=10.6 ms
+64 bytes from 192.168.2.30: icmp_seq=1 ttl=64 time=53.1 ms (DUP!)
+
+--- 192.168.2.30 ping statistics ---
+3 packets transmitted, 1 received, +1 duplicates, 66% packet loss, time 2035ms
+rtt min/avg/max/mdev = 10.639/31.891/53.144/21.253 ms
+containernet> h1 ping -c 3 h3
+PING 192.168.2.30 (192.168.2.30) 56(84) bytes of data.
+^[[A^?^?
+--- 192.168.2.30 ping statistics ---
+3 packets transmitted, 0 received, 100% packet loss, time 2543ms
+
+containernet> h2 ping -c 5 h4
+PING 192.168.2.40 (192.168.2.40) 56(84) bytes of data.
+
+--- 192.168.2.40 ping statistics ---
+5 packets transmitted, 0 received, 100% packet loss, time 4086ms
+
+containernet> h1 hping3 -S h2 -p 80 -c 5 
+bash: $'\Ehping3': command not found
+containernet> h1 hping3 -S h2 -p 80 -c 5 
+HPING 192.168.2.20 (h1-eth0 192.168.2.20): S set, 40 headers + 0 data bytes
+
+--- 192.168.2.20 hping statistic ---
+5 packets transmitted, 0 packets received, 100% packet loss
+round-trip min/avg/max = 0.0/0.0/0.0 ms
+containernet> h1 hping3 -udp  h2 -p 80 -c 5 
+hping3: option requires an argument -- d
+Try hping3 --help
+containernet> h1 hping3 --udp  h2 -p 80 -c 5 
+HPING 192.168.2.20 (h1-eth0 192.168.2.20): udp mode set, 28 headers + 0 data bytes
+^[[A
+--- 192.168.2.20 hping statistic ---
+5 packets transmitted, 0 packets received, 100% packet loss
+round-trip min/avg/max = 0.0/0.0/0.0 ms
+containernet> h2 curl http://192.168.2.20 -P 80
+curl: (7) Failed to connect to 192.168.2.20 port 80: Connection refused
+containernet> h2 ping -c 3 h4 
+PING 192.168.2.40 (192.168.2.40) 56(84) bytes of data.
+
+--- 192.168.2.40 ping statistics ---
+3 packets transmitted, 0 received, 100% packet loss, time 2045ms
+
+containernet> 
+Interrupt
+containernet> exit
+*** Stopping 2 controllers
+c0 c1 
+*** Stopping 4 terms
+*** Stopping 4 links
+....
+*** Stopping 1 switches
+s1 
+*** Stopping 4 hosts
+h1 h2 h3 h4 
+*** Done
+completed in 1167.080 seconds
+ubuntu@ubuntu:~/containernet$ 
